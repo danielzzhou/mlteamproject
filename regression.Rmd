@@ -1,0 +1,63 @@
+---
+title: "spdaily"
+author: "Daniel Zhou"
+date: "2/21/2020"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(purrr)
+library(lubridate)
+library(pbapply)
+```
+
+```{r}
+combine <- read.csv(file = 'combine.csv')
+```
+
+```{r}
+combine=combine %>% 
+  select(-X)
+```
+
+```{r}
+combine$month=month(ymd(combine$date))
+```
+```{r}
+combine$year=year(ymd(combine$date))
+```
+
+```{r}
+combinerecent = combine[combine$year>=1999,]
+```
+
+
+```{r}
+bycusip <- combinerecent %>% 
+  group_by(CUSIP, year,month) %>% 
+  nest()
+```
+
+```{r}
+model <- function(df) {
+  lm(RETX ~ sprtrn, data = df)
+}
+```
+
+```{r}
+bycusipticker1 <- bycusip[bycusip$CUSIP==74835610,]
+```
+
+```{r}
+bycusipyear1 <- bycusip[bycusip$year==1999,]
+```
+
+
+
+```{r}
+bycusip <- bycusip %>% 
+  mutate(model = map(data, model)) 
+```
+
+
+
